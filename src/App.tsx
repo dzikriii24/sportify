@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import CardNav from './manual-components/navbar';
 import logo from './assets/react.svg';
 import './App.css'
