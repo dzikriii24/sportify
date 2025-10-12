@@ -1,0 +1,15 @@
+/* 1️⃣ Import font dulu (paling atas) */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=Inter:wght@400;500;600&display=swap');
+
+/* 2️⃣ Lalu import Tailwind */
+@import "tailwindcss";
+@plugin "daisyui";
+
+/* 3️⃣ Baru aturan custom kamu */
+body {
+  font-family: 'Inter', sans-serif;
+}
+
+h1, h2, h3 {
+  font-family: 'Outfit', sans-serif;
+}
