@@ -175,7 +175,6 @@ const CardNav: React.FC<CardNavProps> = ({
           <div className="logo-container">
             <img src={logo} alt={logoAlt} className="logo" />
           </div>
-
           <button
             type="button"
             className="card-nav-cta-button"

@@ -7,6 +7,7 @@ export interface BentoCardProps {
     title?: string;
     imageUrl?: string;
     description?: string;
+    href?: string;
     label?: string;
     textAutoHide?: boolean;
     disableAnimations?: boolean;
@@ -35,47 +36,56 @@ const cardData: BentoCardProps[] = [
     {
         color: '',
         title: '',
-        description: 'Padel Comunity is a vibrant platform for Padel enthusiasts to connect, share, and grow.',
+        description: 'Padel’s not just a game — it’s a vibe.',
         label: 'Padel Community',
-        imageUrl: 'https://images.pexels.com/photos/33678503/pexels-photo-33678503.jpeg'
+        imageUrl: 'https://images.pexels.com/photos/33678503/pexels-photo-33678503.jpeg',
+        href: 'https://gemini.google.com/app/e123ba7fbeda9e1e'
     },
     {
         color: '#060010',
-        title: 'Dashboard',
-        description: 'Centralized data view',
-        label: 'Overview',
-        imageUrl: 'https://images.pexels.com/photos/3601098/pexels-photo-3601098.jpeg'
+        title: '',
+        description: 'Run together, go further, feel alive.',
+        label: 'Running Community',
+        imageUrl: 'https://images.pexels.com/photos/3601098/pexels-photo-3601098.jpeg',
+        href: 'https://gemini.google.com/app/e123ba7fbeda9e1e'
+
     },
     {
         color: '#ffffffff',
-        title: 'Collaboration',
-        description: 'Work together seamlessly',
-        label: 'Teamwork',
-        imageUrl: 'https://images.pexels.com/photos/1586981/pexels-photo-1586981.jpeg'
+        title: '',
+        description: `Sportify is more than just a sports hub — it’s where athletes, fans, and everyday movers connect. 
+    Whether you're into padel, running, football, or gaming, Sportify brings everyone together to share energy, passion, and growth. 
+    Join in, explore communities, and live the sport life your way.`,
+        label: 'What is Sportify?',
+        imageUrl: 'https://images.pexels.com/photos/34268906/pexels-photo-34268906.jpeg',
     },
     {
         color: '#060010',
-        title: 'Automation',
-        description: 'Streamline workflows',
-        label: 'Efficiency',
-        imageUrl : 'https://images.pexels.com/photos/5384608/pexels-photo-5384608.jpeg'
+        title: '',
+        description: `Communities are the heartbeat of Sportify — spaces where you meet people who love the same things you do. 
+    Share moments, learn new skills, join local events, or just vibe with others who get your energy. 
+    Because everything’s better when you play together.`,
+        label: 'Community',
+        imageUrl: 'https://images.pexels.com/photos/5384608/pexels-photo-5384608.jpeg',
     },
     {
         color: '#060010',
-        title: 'Integration',
-        description: 'Connect favorite tools',
-        label: 'Connectivity',
-        imageUrl: 'https://images.pexels.com/photos/3886235/pexels-photo-3886235.jpeg'
+        title: '',
+        description: 'Kick, score, celebrate — every match matters.',
+        label: 'Soccer/Football/Futsal',
+        imageUrl: 'https://images.pexels.com/photos/3886235/pexels-photo-3886235.jpeg',
+        href: 'https://gemini.google.com/app/e123ba7fbeda9e1e'
     },
     {
         color: '#060010',
-        title: 'Security',
-        description: 'Enterprise-grade protection',
-        label: 'Protection',
-
-        imageUrl: 'https://images.pexels.com/photos/34179707/pexels-photo-34179707.jpeg'
+        title: '',
+        description: 'Game on, squad up, and win together.',
+        label: 'Hikers Community',
+        imageUrl: 'https://images.pexels.com/photos/34179707/pexels-photo-34179707.jpeg',
+        href: 'https://chatgpt.com/c/68ea1471-18fc-8324-a96a-06e1b4960955',
     }
 ];
+
 
 const createParticleElement = (x: number, y: number, color: string = DEFAULT_GLOW_COLOR): HTMLDivElement => {
     const el = document.createElement('div');
@@ -577,12 +587,38 @@ const MagicBento: React.FC<BentoProps> = ({
                             >
                                 <div className="card__header">
                                     <div className="card__label">{card.label}</div>
+                                    {card.href && (
+                                        <a
+                                            href={card.href}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="absolute right-3 text-white/80 hover:text-white transition-colors z-30"
+                                        >
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                strokeWidth={1.5}
+                                                stroke="currentColor"
+                                                className="w-5 h-5"
+                                            >
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    d="M13.5 6h6v6m0-6L10.5 15.5m9-9L6 19.5"
+                                                />
+                                            </svg>
+                                        </a>
+                                    )}
                                 </div>
                                 <div className="card__content">
                                     <h2 className="card__title">{card.title}</h2>
                                     <p className="card__description">{card.description}</p>
+
+
                                 </div>
                             </ParticleCard>
+
                         );
                     }
 
