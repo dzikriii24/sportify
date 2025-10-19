@@ -28,7 +28,7 @@ function Dashboard() {
       bgColor: "#006989",
       textColor: "#ffffff",
       links: [
-        { label: "Padel", href: "/community/padel", ariaLabel: "Padel Community" },
+        { label: "Padel", href: "/dashboard-community", ariaLabel: "Padel Community" },
         { label: "Running", href: "/community/running", ariaLabel: "Running Community" },
         { label: "Soccer", href: "/community/soccer", ariaLabel: "Soccer Community" },
         { label: "Hiking", href: "/community/hiking", ariaLabel: "Hiking Community" }

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Instagram, Edit2, UserPlus, Menu, User } from "lucide-react";
+import { Instagram, Edit2, UserPlus, User } from "lucide-react";
 import { Card } from "./ui/card";
 import { Button } from "./ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";

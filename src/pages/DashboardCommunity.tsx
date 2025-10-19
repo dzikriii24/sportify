@@ -4,7 +4,6 @@ import LeftSidebar from "../manual-components/LeftSidebar";
 import RightSidebar from "../manual-components/RightSideBar";
 import CommunityCard from "../manual-components/CommunityCard";
 import EventCard from "../manual-components/EventCard";
-import { Menu } from "lucide-react";
 
 
 const communities = [
@@ -157,8 +156,6 @@ const DashboardCommunity = () => {
     const [activeTab, setActiveTab] = useState<"community" | "event">("community");
 
     const [searchTerm, setSearchTerm] = useState("");
-
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     const filteredCommunities = communities.filter(c =>
         c.name.toLowerCase().includes(searchTerm.toLowerCase())

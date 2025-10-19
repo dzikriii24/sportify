@@ -1,10 +1,9 @@
 import { useState } from "react";
 import Navbar from "../manual-components/NavbarComunity";
 import { Card } from "../manual-components/ui/card";
-import { Input } from "../manual-components/ui/input";
 import { Badge } from "../manual-components/ui/badge";
 import { Button } from "../manual-components/ui/button";
-import { MapPin, Phone, Clock, Star, Search } from "lucide-react";
+import { MapPin, Phone, Clock, Star } from "lucide-react";
 
 
 
