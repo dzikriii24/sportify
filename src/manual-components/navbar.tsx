@@ -1,5 +1,6 @@
 import React, { useLayoutEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
+import { useNavigate } from "react-router-dom";
 // use your own icon import if react-icons is not available
 import { GoArrowUpRight } from 'react-icons/go';
 import '../css/navbar.css';
@@ -156,6 +157,8 @@ const CardNav: React.FC<CardNavProps> = ({
     if (el) cardsRef.current[i] = el;
   };
 
+  const navigate = useNavigate();
+
   return (
     <div className={`card-nav-container ${className}`}>
       <nav ref={navRef} className={`card-nav ${isExpanded ? 'open' : ''}`} style={{ backgroundColor: baseColor }}>
@@ -188,14 +191,37 @@ const CardNav: React.FC<CardNavProps> = ({
           </button>
 
           <dialog id="my_modal_2" className="modal">
-            <div className="modal-box">
-              <h3 className="font-bold text-lg">Hello!</h3>
-              <p className="py-4">Press ESC key or click outside to close</p>
+            <div className="modal-box bg-white/10 backdrop-blur-lg border border-white/20 text-center shadow-xl rounded-xl text-white">
+              <h3 className="text-2xl font-semibold mb-4">Welcome to Sportify.id</h3>
+              <p className="text-sm text-white/80 mb-6">
+                Join the movement — connect with your sports community today.
+              </p>
+
+              <div className="flex justify-center gap-4">
+                <button
+                  className="px-6 py-2 rounded-md bg-[#006989] hover:bg-[#005b78] text-white font-medium transition duration-300"
+                  onClick={() => navigate("/login")}
+                >
+                  Login
+                </button>
+                <button
+                  className="px-6 py-2 rounded-md border border-[#006989] text-[#006989] bg-white hover:bg-[#006989] hover:text-white font-medium transition duration-300"
+                  onClick={() => navigate("/register")}
+                >
+                  Register
+                </button>
+              </div>
+
+              <p className="text-xs text-white/60 mt-6">
+                Press <kbd className="kbd kbd-xs">ESC</kbd> or click outside to close
+              </p>
             </div>
-            <form method="dialog" className="modal-backdrop">
+
+            <form method="dialog" className="modal-backdrop bg-black/50 backdrop-blur-sm">
               <button>close</button>
             </form>
           </dialog>
+
 
         </div>
 
