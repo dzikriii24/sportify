@@ -72,16 +72,16 @@ const cardData: BentoCardProps[] = [
         color: '#060010',
         title: '',
         description: 'Kick, score, celebrate — every match matters.',
-        label: 'Soccer/Football/Futsal',
+        label: 'Soccer - Futsal',
         imageUrl: 'https://images.pexels.com/photos/3886235/pexels-photo-3886235.jpeg',
         href: 'https://gemini.google.com/app/e123ba7fbeda9e1e'
     },
     {
         color: '#060010',
         title: '',
-        description: 'Game on, squad up, and win together.',
+        description: 'Step up, breathe in, and chase the summit together.',
         label: 'Hikers Community',
-        imageUrl: 'https://images.pexels.com/photos/34179707/pexels-photo-34179707.jpeg',
+        imageUrl: 'https://images.pexels.com/photos/7624845/pexels-photo-7624845.jpeg',
         href: 'https://chatgpt.com/c/68ea1471-18fc-8324-a96a-06e1b4960955',
     }
 ];

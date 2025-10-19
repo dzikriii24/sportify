@@ -3,39 +3,30 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { cn } from '../lib/utils';
 
+// Tidak ada perubahan di interface ini
 export interface GlowingCardProps {
   children: React.ReactNode;
   className?: string;
   glowColor?: string;
   hoverEffect?: boolean;
+  style?: React.CSSProperties;
 }
 
+// Tidak ada perubahan di interface ini
 export interface GlowingCardsProps {
   children: React.ReactNode;
   className?: string;
-  /** Enable the glowing overlay effect */
   enableGlow?: boolean;
-  /** Size of the glow effect radius */
   glowRadius?: number;
-  /** Opacity of the glow effect */
   glowOpacity?: number;
-  /** Animation duration for glow transitions */
   animationDuration?: number;
-  /** Enable hover effects on individual cards */
   enableHover?: boolean;
-  /** Gap between cards */
   gap?: string;
-  /** Maximum width of cards container */
   maxWidth?: string;
-  /** Padding around the container */
   padding?: string;
-  /** Background color for the container */
   backgroundColor?: string;
-  /** Border radius for cards */
   borderRadius?: string;
-  /** Enable responsive layout */
   responsive?: boolean;
-  /** Custom CSS variables for theming */
   customTheme?: {
     cardBg?: string;
     cardBorder?: string;
@@ -44,6 +35,7 @@ export interface GlowingCardsProps {
   };
 }
 
+// Tidak ada perubahan di komponen ini
 export const GlowingCard: React.FC<GlowingCardProps> = ({
   children,
   className,
@@ -68,7 +60,6 @@ export const GlowingCard: React.FC<GlowingCardProps> = ({
         {children}
       </div>
     </div>
-
   );
 };
 
@@ -79,7 +70,7 @@ export const GlowingCards: React.FC<GlowingCardsProps> = ({
   glowRadius = 25,
   glowOpacity = 1,
   animationDuration = 400,
-  enableHover = true,
+  // enableHover dihapus dari props karena tidak pernah dipakai
   gap = "2.5rem",
   maxWidth = "75rem",
   padding = "1rem 1.5rem",
@@ -90,7 +81,7 @@ export const GlowingCards: React.FC<GlowingCardsProps> = ({
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  // mousePosition dihapus karena state-nya tidak pernah dibaca/dipakai
   const [showOverlay, setShowOverlay] = useState(false);
 
   useEffect(() => {
@@ -104,10 +95,9 @@ export const GlowingCards: React.FC<GlowingCardsProps> = ({
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
 
-      setMousePosition({ x, y });
+      // setMousePosition dihapus karena tidak perlu
       setShowOverlay(true);
 
-      // Using string concatenation for style properties
       overlay.style.setProperty('--x', x + 'px');
       overlay.style.setProperty('--y', y + 'px');
       overlay.style.setProperty('--opacity', glowOpacity.toString());
@@ -132,8 +122,8 @@ export const GlowingCards: React.FC<GlowingCardsProps> = ({
     '--max-width': maxWidth,
     '--padding': padding,
     '--border-radius': borderRadius,
-    '--animation-duration': animationDuration + 'ms', // Concatenation
-    '--glow-radius': glowRadius + 'rem', // Concatenation
+    '--animation-duration': animationDuration + 'ms',
+    '--glow-radius': glowRadius + 'rem',
     '--glow-opacity': glowOpacity,
     backgroundColor: backgroundColor || undefined,
     ...customTheme,
@@ -150,7 +140,7 @@ export const GlowingCards: React.FC<GlowingCardsProps> = ({
           "relative max-w-[var(--max-width)] mx-auto",
           "px-6 py-2"
         )}
-        style={{ padding: "var(--padding)" }} // String literal
+        style={{ padding: "var(--padding)" }}
       >
         <div
           className={cn(
@@ -169,7 +159,6 @@ export const GlowingCards: React.FC<GlowingCardsProps> = ({
               "opacity-0 transition-all duration-[var(--animation-duration)] ease-out"
             )}
             style={{
-              // String concatenation for WebkitMask and mask
               WebkitMask:
                 "radial-gradient(var(--glow-radius) var(--glow-radius) at var(--x, 0) var(--y, 0), #000 1%, transparent 50%)",
               mask:
@@ -182,20 +171,23 @@ export const GlowingCards: React.FC<GlowingCardsProps> = ({
                 "flex items-center justify-center flex-wrap gap-[var(--gap)] max-w-[var(--max-width)] center mx-auto",
                 responsive && "flex-col sm:flex-row"
               )}
-              style={{ padding: "var(--padding)" }} // String literal
+              style={{ padding: "var(--padding)" }}
             >
-              {React.Children.map(children, (child, index) => {
+              {/* 'index' dihapus karena tidak pernah dipakai */}
+              {React.Children.map(children, (child) => {
                 if (React.isValidElement(child) && child.type === GlowingCard) {
-                  const cardGlowColor = child.props.glowColor || "#3b82f6";
-                  return React.cloneElement(child as React.ReactElement<any>, {
+                  // PERBAIKAN UTAMA: Casting 'child' agar TypeScript tahu tipe props-nya
+                  const typedChild = child as React.ReactElement<GlowingCardProps>;
+                  const cardGlowColor = typedChild.props.glowColor || "#3b82f6";
+                  
+                  return React.cloneElement(typedChild, {
                     className: cn(
-                      child.props.className,
+                      typedChild.props.className,
                       "bg-opacity-15 dark:bg-opacity-15",
                       "border-opacity-100 dark:border-opacity-100"
                     ),
                     style: {
-                      ...child.props.style,
-                      // String concatenation for background, border, and boxShadow
+                      ...typedChild.props.style,
                       backgroundColor: cardGlowColor + "15",
                       borderColor: cardGlowColor,
                       boxShadow: "0 0 0 1px inset " + cardGlowColor,

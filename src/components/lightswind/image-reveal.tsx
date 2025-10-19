@@ -28,8 +28,8 @@ const visualData: VisualItem[] = [
   },
   {
     key: 4,
-    url: "https://images.pexels.com/photos/9072317/pexels-photo-9072317.jpeg",
-    label: "E-Sport",
+    url: "https://images.pexels.com/photos/27500629/pexels-photo-27500629.jpeg",
+    label: "Hikers",
   },
 ];
 

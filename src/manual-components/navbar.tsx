@@ -179,10 +179,24 @@ const CardNav: React.FC<CardNavProps> = ({
             type="button"
             className="card-nav-cta-button"
             style={{ backgroundColor: buttonBgColor, color: buttonTextColor }}
+            onClick={() => {
+              const modal = document.getElementById('my_modal_2') as HTMLDialogElement;
+              modal.showModal();
+            }}
           >
             Get Started
           </button>
-          
+
+          <dialog id="my_modal_2" className="modal">
+            <div className="modal-box">
+              <h3 className="font-bold text-lg">Hello!</h3>
+              <p className="py-4">Press ESC key or click outside to close</p>
+            </div>
+            <form method="dialog" className="modal-backdrop">
+              <button>close</button>
+            </form>
+          </dialog>
+
         </div>
 
         <div className="card-nav-content" aria-hidden={!isExpanded}>
