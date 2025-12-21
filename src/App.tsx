@@ -1,9 +1,10 @@
 // App.tsx
-import { Toaster } from "./manual-components/ui/toaster";
+import { Toaster } from 'react-hot-toast';
 import { Toaster as Sonner } from "./manual-components/ui/sonner";
 import { TooltipProvider } from "./manual-components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+
 
 import Dashboard from "../src/Dashboard";
 import Login from "../src/loginAuth/LoginPage";
@@ -17,6 +18,9 @@ import NotFound from "./pages/NotFound";
 import CreateCommunity from "./pages/create/CreateCommunity";
 import CreateEvent from "./pages/create/CreateEvent";
 import CreateVenue from "./pages/create/CreateVanue";
+import VenueDetail from "./pages/VenueDetail";
+import CommunityChat from './pages/CommunityChat';
+import EventDetail from './pages/event/EventDetail';
 
 const queryClient = new QueryClient();
 
@@ -24,7 +28,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <Toaster />
+        <Toaster position="top-center" reverseOrder={false} />
         <Sonner />
         <BrowserRouter>
           <Routes>
@@ -40,6 +44,9 @@ function App() {
             <Route path="/create-community" element={<CreateCommunity />} />
             <Route path="/create-event" element={<CreateEvent />} />
             <Route path="/create-venue" element={<CreateVenue />} />
+            <Route path="/venue/:id" element={<VenueDetail />} />
+            <Route path="/community/:slug" element={<CommunityChat />} />
+            <Route path="/event/:id" element={<EventDetail />} />
           </Routes>
         </BrowserRouter>
       </TooltipProvider>

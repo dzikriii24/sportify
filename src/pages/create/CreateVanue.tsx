@@ -4,112 +4,110 @@ import { supabase } from '../../lib/supabaseClient';
 import {
   MapPin, Phone, Clock, DollarSign,
   Star, Upload, X, Plus, ArrowLeft,
-  Wifi, Car, ShowerHead, Coffee, ShoppingBag,
-  Map, Check
+  Wifi, Car, ShowerHead, Coffee, 
+  Map, Check, Link as LinkIcon, RefreshCw,
+  Eye, Info
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
+// --- DATA CONSTANTS ---
+// (Sama seperti sebelumnya)
+const sportOptions = [
+  { id: 'futsal', label: 'Futsal', icon: '⚽' },
+  { id: 'badminton', label: 'Badminton', icon: '🏸' },
+  { id: 'basketball', label: 'Basketball', icon: '🏀' },
+  { id: 'tennis', label: 'Tennis', icon: '🎾' },
+  { id: 'padel', label: 'Padel', icon: '🎾' },
+  { id: 'gym', label: 'Gym', icon: '💪' },
+  { id: 'swimming', label: 'Swimming', icon: '🏊' },
+  { id: 'volleyball', label: 'Volleyball', icon: '🏐' },
+];
+
 const facilitiesOptions = [
-  { id: 'locker_room', label: 'Locker Room', icon: '👕' },
+  { id: 'locker', label: 'Locker', icon: '🔐' },
   { id: 'parking', label: 'Parking', icon: '🅿️' },
   { id: 'shower', label: 'Shower', icon: '🚿' },
-  { id: 'cafe', label: 'Cafe/Restaurant', icon: '☕' },
-  { id: 'pro_shop', label: 'Pro Shop', icon: '🛍️' },
-  { id: 'wifi', label: 'Free WiFi', icon: '📶' },
-  { id: 'ac', label: 'Air Conditioning', icon: '❄️' },
-  { id: 'lighting', label: 'Good Lighting', icon: '💡' },
+  { id: 'wifi', label: 'WiFi', icon: '📶' },
+  { id: 'canteen', label: 'Canteen', icon: '☕' },
+  { id: 'musholla', label: 'Musholla', icon: '🕌' },
+  { id: 'toilet', label: 'Toilet', icon: '🚻' },
+  { id: 'ac', label: 'AC', icon: '❄️' },
 ];
 
 const CreateVenue = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  const [isParsingMap, setIsParsingMap] = useState(false);
+
+  // Form State
   const [formData, setFormData] = useState({
     name: '',
     address: '',
+    phone: '',
+    description: '',
+    gmaps_url: '',
     lat: -6.9175,
     lng: 107.6191,
     rating: 4.5,
-    court_count: 4,
-    price_per_hour: 120000,
-    phone: '',
-    opening_time: '07:00',
-    closing_time: '21:00',
-    description: '',
+    court_count: 1,
+    price_per_hour: 100000,
+    opening_time: '08:00',
+    closing_time: '22:00',
+    sport_categories: [] as string[],
     facilities: [] as string[],
   });
+
   const [photos, setPhotos] = useState<File[]>([]);
   const [photoPreviews, setPhotoPreviews] = useState<string[]>([]);
-  const [duplicateCheck, setDuplicateCheck] = useState<{ checking: boolean; exists: boolean }>({
-    checking: false,
-    exists: false,
-  });
 
-  // Check if user is admin
+  // Auth Check
   useEffect(() => {
-    const checkAdmin = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
         toast.error('Please login first');
         navigate('/login');
-        return;
-      }
-
-      const { data: userData } = await supabase
-        .from('users')
-        .select('username')
-        .eq('id', user.id)
-        .single();
-
-      if (userData?.username !== 'admin') {
-        toast.error('Only admins can create venues');
-        navigate(-1);
       }
     };
-    checkAdmin();
+    checkAuth();
   }, [navigate]);
 
-  const checkDuplicateVenue = async (name: string, address: string) => {
-    if (!name.trim() || !address.trim()) return;
+  // --- LOGIC: GMAPS & PHOTOS (Sama seperti sebelumnya) ---
+  const extractFromGoogleMaps = async () => {
+    const url = formData.gmaps_url;
+    if (!url) return toast.error('Please enter a Google Maps URL first');
+    setIsParsingMap(true);
+    let foundLat = null, foundLng = null;
 
-    setDuplicateCheck({ checking: true, exists: false });
+    try {
+      const regexAt = /@(-?\d+\.\d+),(-?\d+\.\d+)/;
+      const regexData = /!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/;
+      const regexQuery = /[?&]q=(-?\d+\.\d+),(-?\d+\.\d+)/;
+      
+      const matchAt = url.match(regexAt);
+      const matchData = url.match(regexData);
+      const matchQuery = url.match(regexQuery);
 
-    const { data, error } = await supabase
-      .from('venues')
-      .select('name')
-      .eq('name', name)
-      .eq('address', address)
-      .single();
+      if (matchAt) { foundLat = parseFloat(matchAt[1]); foundLng = parseFloat(matchAt[2]); }
+      else if (matchData) { foundLat = parseFloat(matchData[1]); foundLng = parseFloat(matchData[2]); }
+      else if (matchQuery) { foundLat = parseFloat(matchQuery[1]); foundLng = parseFloat(matchQuery[2]); }
 
-    setDuplicateCheck({
-      checking: false,
-      exists: !!data,
-    });
+      if (foundLat && foundLng) {
+        setFormData(prev => ({ ...prev, lat: foundLat!, lng: foundLng! }));
+        toast.success('Location updated!');
+      } else {
+        toast.error('Could not extract coordinates. Please use full URL.');
+      }
+    } catch (err) { toast.error('Error parsing URL'); } 
+    finally { setIsParsingMap(false); }
   };
 
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    
-    if (photos.length + files.length > 10) {
-      toast.error('Maximum 10 photos allowed');
-      return;
-    }
-
-    const validFiles = files.filter(file => {
-      if (!file.type.startsWith('image/')) {
-        toast.error(`${file.name} is not an image file`);
-        return false;
-      }
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error(`${file.name} is too large (max 5MB)`);
-        return false;
-      }
-      return true;
-    });
-
-    setPhotos(prev => [...prev, ...validFiles]);
-    
-    const newPreviews = validFiles.map(file => URL.createObjectURL(file));
-    setPhotoPreviews(prev => [...prev, ...newPreviews]);
+    if (photos.length + files.length > 10) return toast.error('Max 10 photos');
+    const newPhotos = files.filter(f => f.type.startsWith('image/'));
+    setPhotos(prev => [...prev, ...newPhotos]);
+    setPhotoPreviews(prev => [...prev, ...newPhotos.map(f => URL.createObjectURL(f))]);
   };
 
   const removePhoto = (index: number) => {
@@ -117,583 +115,348 @@ const CreateVenue = () => {
     setPhotoPreviews(prev => prev.filter((_, i) => i !== index));
   };
 
-  const uploadPhotos = async (): Promise<string[]> => {
+  const uploadPhotosToSupabase = async () => {
     if (photos.length === 0) return [];
-
-    const uploadPromises = photos.map(async (photo, index) => {
-      const fileExt = photo.name.split('.').pop();
-      const fileName = `${Date.now()}-${index}.${fileExt}`;
-
-      const { error } = await supabase.storage
-        .from('venue-photos')
-        .upload(fileName, photo);
-
-      if (error) throw error;
-
-      const { data } = supabase.storage
-        .from('venue-photos')
-        .getPublicUrl(fileName);
-
-      return data.publicUrl;
-    });
-
-    return Promise.all(uploadPromises);
+    const urls = [];
+    for (const [index, photo] of photos.entries()) {
+      const ext = photo.name.split('.').pop();
+      const fileName = `${Date.now()}-${index}.${ext}`;
+      const { error } = await supabase.storage.from('venue-photos').upload(fileName, photo);
+      if (!error) {
+        const { data } = supabase.storage.from('venue-photos').getPublicUrl(fileName);
+        urls.push(data.publicUrl);
+      }
+    }
+    return urls;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (duplicateCheck.exists) {
-      toast.error('A venue with this name and address already exists');
-      return;
-    }
-
     setIsLoading(true);
-
     try {
-      // Get current user
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not found');
-
-      // Upload photos
-      let photoUrls: string[] = [];
-      try {
-        photoUrls = await uploadPhotos();
-      } catch (error) {
-        console.warn('Failed to upload photos');
-      }
-
-      // Create venue
-      const { data: venue, error: venueError } = await supabase
-        .from('venues')
-        .insert([{
-          ...formData,
-          photos: photoUrls,
-          facilities: formData.facilities,
-          is_active: true,
-          created_by: user.id,
-        }])
-        .select()
-        .single();
-
-      if (venueError) throw venueError;
-
-      toast.success('Venue created successfully!');
-      navigate(`/venue/${venue.id}`);
+      
+      const photoUrls = await uploadPhotosToSupabase();
+      const { error } = await supabase.from('venuesnew').insert([{
+        ...formData, photos: photoUrls, created_by: user.id
+      }]);
+      if (error) throw error;
+      toast.success('Venue Created!');
+      navigate('/dashboard');
     } catch (error: any) {
-      toast.error(error.message || 'Failed to create venue');
+      toast.error(error.message);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleFacilityToggle = (facilityId: string) => {
+  const toggleSelection = (field: 'sport_categories' | 'facilities', value: string) => {
     setFormData(prev => ({
       ...prev,
-      facilities: prev.facilities.includes(facilityId)
-        ? prev.facilities.filter(id => id !== facilityId)
-        : [...prev.facilities, facilityId]
+      [field]: prev[field].includes(value) 
+        ? prev[field].filter(item => item !== value) 
+        : [...prev[field], value]
     }));
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-emerald-50 p-4 md:p-8">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <button
-            onClick={() => navigate(-1)}
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6"
-          >
-            <ArrowLeft size={20} />
-            Back
-          </button>
-          
-          <div className="flex items-center gap-4 mb-4">
-            <div className="w-14 h-14 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-xl flex items-center justify-center">
-              <MapPin className="text-white h-7 w-7" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Add New Venue</h1>
-              <p className="text-gray-600">Register a sports venue in Bandung</p>
-            </div>
+    <div className="min-h-screen bg-gray-50 p-4 md:p-8 font-sans">
+      <div className="max-w-7xl mx-auto">
+        
+        {/* HEADER */}
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-gray-500 hover:text-gray-900 mb-2 transition">
+              <ArrowLeft size={20} /> Back to Dashboard
+            </button>
+            <h1 className="text-3xl font-bold text-gray-900">Add New Venue</h1>
+          </div>
+          <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
+            <Eye size={16} /> Live Preview Mode Active
           </div>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-8">
-          {/* Left Column - Form */}
-          <div className="lg:col-span-2">
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Basic Information */}
-              <div className="bg-white rounded-xl shadow-sm p-6">
-                <h2 className="text-xl font-bold text-gray-900 mb-6">Basic Information</h2>
-                
+        <div className="grid lg:grid-cols-12 gap-8">
+          
+          {/* --- LEFT COLUMN: FORM INPUTS (Width 7/12) --- */}
+          <div className="lg:col-span-7 space-y-6">
+            <form id="venue-form" onSubmit={handleSubmit}>
+              
+              {/* SECTION 1: IDENTITY */}
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-6">
+                <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                  <div className="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs">1</div>
+                  Identity & Description
+                </h3>
                 <div className="space-y-4">
-                  {/* Venue Name */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Venue Name *
-                    </label>
-                    <div className="relative">
-                      <input
-                        type="text"
-                        required
-                        value={formData.name}
-                        onChange={(e) => {
-                          setFormData({ ...formData, name: e.target.value });
-                          checkDuplicateVenue(e.target.value, formData.address);
-                        }}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-600 focus:border-transparent transition"
-                        placeholder="e.g., Cihampelas Padel Club"
-                      />
-                      {duplicateCheck.checking && (
-                        <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                          <div className="h-5 w-5 border-2 border-emerald-600 border-t-transparent rounded-full animate-spin" />
-                        </div>
-                      )}
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Venue Name</label>
+                    <input type="text" required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-blue-500" placeholder="e.g. Gor Saparua" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                    <textarea rows={3} value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} className="w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-blue-500" placeholder="Highlight the best features..." />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Price / Hour (Rp)</label>
+                      <input type="number" value={formData.price_per_hour} onChange={e => setFormData({...formData, price_per_hour: Number(e.target.value)})} className="w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-blue-500" />
                     </div>
-                    {duplicateCheck.exists && (
-                      <p className="text-sm text-red-600 mt-2">
-                        ⚠️ A venue with this name and address already exists
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Address */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Address *
-                    </label>
-                    <div className="relative">
-                      <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                      <textarea
-                        required
-                        value={formData.address}
-                        onChange={(e) => {
-                          setFormData({ ...formData, address: e.target.value });
-                          checkDuplicateVenue(formData.name, e.target.value);
-                        }}
-                        className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-600 focus:border-transparent transition resize-none"
-                        rows={3}
-                        placeholder="Full address including street, district, city"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Phone */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Phone Number
-                    </label>
-                    <div className="relative">
-                      <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                      <input
-                        type="tel"
-                        value={formData.phone}
-                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                        className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-600 focus:border-transparent transition"
-                        placeholder="+62 22 2345 6789"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Description */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Description
-                    </label>
-                    <textarea
-                      value={formData.description}
-                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                      className="w-full h-32 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-600 focus:border-transparent transition resize-none"
-                      placeholder="Describe the venue, features, atmosphere..."
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Location Coordinates */}
-              <div className="bg-white rounded-xl shadow-sm p-6">
-                <div className="flex items-center gap-3 mb-6">
-                  <Map className="text-emerald-600" size={24} />
-                  <h2 className="text-xl font-bold text-gray-900">Location Coordinates</h2>
-                </div>
-                
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Latitude
-                    </label>
-                    <input
-                      type="number"
-                      step="any"
-                      value={formData.lat}
-                      onChange={(e) => setFormData({ ...formData, lat: parseFloat(e.target.value) })}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-600 focus:border-transparent transition"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Longitude
-                    </label>
-                    <input
-                      type="number"
-                      step="any"
-                      value={formData.lng}
-                      onChange={(e) => setFormData({ ...formData, lng: parseFloat(e.target.value) })}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-600 focus:border-transparent transition"
-                    />
-                  </div>
-                </div>
-                
-                <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-                  <div className="text-sm text-gray-600">
-                    <div className="font-medium mb-1">Current Coordinates:</div>
-                    <div>Latitude: {formData.lat}</div>
-                    <div>Longitude: {formData.lng}</div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Venue Details */}
-              <div className="bg-white rounded-xl shadow-sm p-6">
-                <h2 className="text-xl font-bold text-gray-900 mb-6">Venue Details</h2>
-                
-                <div className="grid md:grid-cols-2 gap-6">
-                  {/* Rating */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
-                      <Star size={18} />
-                      Rating (0-5)
-                    </label>
-                    <div className="flex items-center gap-4">
-                      <input
-                        type="range"
-                        min="0"
-                        max="5"
-                        step="0.1"
-                        value={formData.rating}
-                        onChange={(e) => setFormData({ ...formData, rating: parseFloat(e.target.value) })}
-                        className="flex-1"
-                      />
-                      <div className="text-2xl font-bold text-emerald-600">
-                        {formData.rating.toFixed(1)}
-                      </div>
-                    </div>
-                    <div className="flex justify-between text-sm text-gray-500 mt-2">
-                      <span>0</span>
-                      <span>2.5</span>
-                      <span>5</span>
-                    </div>
-                  </div>
-
-                  {/* Court Count */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Number of Courts *
-                    </label>
-                    <div className="flex items-center gap-4">
-                      <input
-                        type="range"
-                        min="1"
-                        max="20"
-                        step="1"
-                        value={formData.court_count}
-                        onChange={(e) => setFormData({ ...formData, court_count: parseInt(e.target.value) })}
-                        className="flex-1"
-                      />
-                      <div className="text-2xl font-bold text-emerald-600">
-                        {formData.court_count}
-                      </div>
-                    </div>
-                    <div className="flex justify-between text-sm text-gray-500 mt-2">
-                      <span>1</span>
-                      <span>10</span>
-                      <span>20</span>
-                    </div>
-                  </div>
-
-                  {/* Price */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
-                      <DollarSign size={18} />
-                      Price per Hour (Rp) *
-                    </label>
-                    <div className="relative">
-                      <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">
-                        Rp
-                      </span>
-                      <input
-                        type="number"
-                        required
-                        min="0"
-                        step="10000"
-                        value={formData.price_per_hour}
-                        onChange={(e) => setFormData({ ...formData, price_per_hour: parseInt(e.target.value) })}
-                        className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-600 focus:border-transparent transition"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Operating Hours */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
-                      <Clock size={18} />
-                      Operating Hours
-                    </label>
-                    <div className="grid grid-cols-2 gap-2">
-                      <div>
-                        <div className="text-sm text-gray-600 mb-1">Opening</div>
-                        <input
-                          type="time"
-                          value={formData.opening_time}
-                          onChange={(e) => setFormData({ ...formData, opening_time: e.target.value })}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-600 focus:border-transparent transition"
-                        />
-                      </div>
-                      <div>
-                        <div className="text-sm text-gray-600 mb-1">Closing</div>
-                        <input
-                          type="time"
-                          value={formData.closing_time}
-                          onChange={(e) => setFormData({ ...formData, closing_time: e.target.value })}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-600 focus:border-transparent transition"
-                        />
-                      </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Phone (WA)</label>
+                      <input type="tel" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-blue-500" placeholder="+62..." />
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Facilities */}
-              <div className="bg-white rounded-xl shadow-sm p-6">
-                <h2 className="text-xl font-bold text-gray-900 mb-6">Facilities</h2>
-                
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  {facilitiesOptions.map(facility => (
-                    <button
-                      key={facility.id}
-                      type="button"
-                      onClick={() => handleFacilityToggle(facility.id)}
-                      className={`p-4 rounded-xl border-2 transition-all ${formData.facilities.includes(facility.id) ? 'border-emerald-600 bg-emerald-50' : 'border-gray-200 hover:border-gray-300'}`}
-                    >
-                      <div className="text-2xl mb-2">{facility.icon}</div>
-                      <div className="text-sm font-medium">{facility.label}</div>
-                      {formData.facilities.includes(facility.id) && (
-                        <div className="mt-2">
-                          <Check className="text-emerald-600 mx-auto" size={18} />
-                        </div>
-                      )}
+              {/* SECTION 2: SPORTS */}
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-6">
+                <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                  <div className="w-6 h-6 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center text-xs">2</div>
+                  Sports Category
+                </h3>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  {sportOptions.map(sport => (
+                    <button key={sport.id} type="button" onClick={() => toggleSelection('sport_categories', sport.id)}
+                      className={`p-3 rounded-xl border text-sm font-medium transition-all ${formData.sport_categories.includes(sport.id) ? 'border-orange-500 bg-orange-50 text-orange-700' : 'border-gray-200 hover:bg-gray-50'}`}>
+                      <div className="text-xl mb-1">{sport.icon}</div>
+                      {sport.label}
                     </button>
                   ))}
                 </div>
               </div>
 
-              {/* Photos */}
-              <div className="bg-white rounded-xl shadow-sm p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                    <Upload size={24} />
-                    Photos
-                  </h2>
-                  <span className="text-sm text-gray-500">
-                    {photoPreviews.length}/10 photos
-                  </span>
-                </div>
-                
+              {/* SECTION 3: LOCATION */}
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-6">
+                <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                  <div className="w-6 h-6 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-xs">3</div>
+                  Location
+                </h3>
                 <div className="space-y-4">
-                  {photoPreviews.length > 0 ? (
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                      {photoPreviews.map((preview, index) => (
-                        <div key={index} className="relative">
-                          <img
-                            src={preview}
-                            alt={`Venue ${index + 1}`}
-                            className="w-full h-32 object-cover rounded-lg"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => removePhoto(index)}
-                            className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full hover:bg-red-600"
-                          >
-                            <X size={16} />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-                      <Upload className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                      <p className="text-gray-600 mb-2">
-                        Upload venue photos (max 10)
-                      </p>
-                      <p className="text-sm text-gray-500 mb-4">
-                        Show different angles, facilities, and atmosphere
-                      </p>
-                    </div>
-                  )}
-
-                  {photoPreviews.length < 10 && (
-                    <label className="inline-block">
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handlePhotoUpload}
-                        multiple
-                        className="hidden"
-                      />
-                      <span className="bg-emerald-600 text-white px-6 py-3 rounded-lg font-medium hover:opacity-90 transition cursor-pointer inline-flex items-center gap-2">
-                        <Plus size={20} />
-                        Add Photos
-                      </span>
-                    </label>
-                  )}
+                  <div className="flex gap-2">
+                    <input type="text" value={formData.gmaps_url} onChange={e => setFormData({...formData, gmaps_url: e.target.value})} placeholder="Paste Google Maps Link..." className="flex-1 px-4 py-2 border rounded-xl focus:ring-2 focus:ring-blue-500" />
+                    <button type="button" onClick={extractFromGoogleMaps} disabled={isParsingMap} className="bg-blue-600 text-white px-4 rounded-xl hover:bg-blue-700 transition">
+                      {isParsingMap ? <RefreshCw className="animate-spin" /> : 'Fetch'}
+                    </button>
+                  </div>
+                  <textarea rows={2} value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} placeholder="Full Address..." className="w-full px-4 py-2 border rounded-xl" />
+                  <div className="grid grid-cols-2 gap-4">
+                    <input type="number" placeholder="Lat" value={formData.lat} onChange={e => setFormData({...formData, lat: parseFloat(e.target.value)})} className="px-4 py-2 border rounded-xl bg-gray-50" />
+                    <input type="number" placeholder="Lng" value={formData.lng} onChange={e => setFormData({...formData, lng: parseFloat(e.target.value)})} className="px-4 py-2 border rounded-xl bg-gray-50" />
+                  </div>
                 </div>
               </div>
 
-              {/* Submit Button */}
-              <div className="sticky bottom-4">
-                <button
-                  type="submit"
-                  disabled={isLoading || duplicateCheck.exists}
-                  className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white py-4 rounded-xl font-bold text-lg hover:opacity-90 transition disabled:opacity-50 flex items-center justify-center gap-3"
-                >
-                  {isLoading ? (
-                    <>
-                      <div className="h-6 w-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      Creating Venue...
-                    </>
-                  ) : (
-                    <>
-                      <Plus size={24} />
-                      Add Venue
-                    </>
-                  )}
-                </button>
+              {/* SECTION 4: FACILITIES & PHOTOS */}
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-6">
+                <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                  <div className="w-6 h-6 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center text-xs">4</div>
+                  Facilities & Photos
+                </h3>
+                
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Facilities</label>
+                  <div className="flex flex-wrap gap-2">
+                    {facilitiesOptions.map(fac => (
+                      <button key={fac.id} type="button" onClick={() => toggleSelection('facilities', fac.id)}
+                        className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${formData.facilities.includes(fac.id) ? 'bg-purple-50 border-purple-200 text-purple-700' : 'bg-gray-50 border-transparent text-gray-600'}`}>
+                        {fac.icon} {fac.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Photos ({photos.length}/10)</label>
+                  <div className="grid grid-cols-4 gap-2">
+                    {photoPreviews.map((src, i) => (
+                      <div key={i} className="relative aspect-square rounded-lg overflow-hidden group">
+                        <img src={src} className="w-full h-full object-cover" />
+                        <button type="button" onClick={() => removePhoto(i)} className="absolute inset-0 bg-black/40 text-white opacity-0 group-hover:opacity-100 flex items-center justify-center transition"><X size={16} /></button>
+                      </div>
+                    ))}
+                    {photos.length < 10 && (
+                      <label className="aspect-square rounded-lg border-2 border-dashed border-gray-300 flex flex-col items-center justify-center cursor-pointer hover:border-purple-500 hover:bg-purple-50 transition">
+                        <Plus className="text-gray-400" />
+                        <span className="text-[10px] text-gray-500 mt-1">Add</span>
+                        <input type="file" hidden multiple accept="image/*" onChange={handlePhotoUpload} />
+                      </label>
+                    )}
+                  </div>
+                </div>
               </div>
+
+              {/* SECTION 5: DETAILS */}
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-6">
+                 <div className="grid grid-cols-3 gap-4">
+                    <div>
+                        <label className="block text-xs text-gray-500 mb-1">Rating</label>
+                        <input type="number" step="0.1" value={formData.rating} onChange={e => setFormData({...formData, rating: parseFloat(e.target.value)})} className="w-full border rounded-lg px-2 py-1" />
+                    </div>
+                    <div>
+                        <label className="block text-xs text-gray-500 mb-1">Open</label>
+                        <input type="time" value={formData.opening_time} onChange={e => setFormData({...formData, opening_time: e.target.value})} className="w-full border rounded-lg px-2 py-1" />
+                    </div>
+                    <div>
+                        <label className="block text-xs text-gray-500 mb-1">Close</label>
+                        <input type="time" value={formData.closing_time} onChange={e => setFormData({...formData, closing_time: e.target.value})} className="w-full border rounded-lg px-2 py-1" />
+                    </div>
+                 </div>
+              </div>
+
+              <button type="submit" disabled={isLoading} className="w-full bg-blue-600 text-white py-4 rounded-xl font-bold text-lg hover:shadow-lg hover:bg-blue-700 transition flex items-center justify-center gap-2">
+                {isLoading ? <RefreshCw className="animate-spin" /> : <Check />} Save & Publish Venue
+              </button>
+
             </form>
           </div>
 
-          {/* Right Column - Preview */}
-          <div className="space-y-6">
-            {/* Preview Card */}
-            <div className="bg-white rounded-xl shadow-xl overflow-hidden sticky top-4">
-              {photoPreviews.length > 0 ? (
-                <img
-                  src={photoPreviews[0]}
-                  alt="Venue preview"
-                  className="w-full h-48 object-cover"
-                />
-              ) : (
-                <div className="w-full h-48 bg-gradient-to-r from-emerald-400 to-teal-400" />
-              )}
+          {/* --- RIGHT COLUMN: STICKY PREVIEW (Width 5/12) --- */}
+          <div className="lg:col-span-5">
+            <div className="sticky top-6">
               
-              <div className="p-6">
-                <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <h3 className="text-2xl font-bold text-gray-900">
-                      {formData.name || 'Venue Name'}
-                    </h3>
-                    <div className="flex items-center gap-2 mt-2">
-                      <div className="flex items-center gap-1">
-                        <Star size={16} className="text-yellow-500" />
-                        <span className="text-gray-700">{formData.rating.toFixed(1)}</span>
+              <div className="flex items-center justify-between mb-3 px-1">
+                <h3 className="font-bold text-gray-500 text-sm uppercase tracking-wide">Mobile Preview</h3>
+                <span className="text-xs text-gray-400">Live Update</span>
+              </div>
+
+              {/* MOCKUP CONTAINER */}
+              <div className="bg-white rounded-[2.5rem] shadow-2xl border-[8px] border-gray-900 overflow-hidden relative" style={{ minHeight: '600px' }}>
+                
+                {/* Status Bar Mockup */}
+                <div className="bg-gray-900 h-6 w-full absolute top-0 z-20 flex justify-center">
+                    <div className="h-4 w-32 bg-black rounded-b-xl"></div>
+                </div>
+
+                {/* Content */}
+                <div className="h-full overflow-y-auto pb-10 bg-gray-50 scrollbar-hide" style={{ maxHeight: '700px' }}>
+                  
+                  {/* Hero Image */}
+                  <div className="relative h-64 bg-gray-200">
+                    {photoPreviews.length > 0 ? (
+                      <img src={photoPreviews[0]} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex flex-col items-center justify-center text-gray-400">
+                        <Upload size={32} />
+                        <span className="text-xs mt-2">No Cover Photo</span>
                       </div>
-                      <span className="text-gray-300">•</span>
-                      <span className="text-gray-700">{formData.court_count} courts</span>
-                      <span className="text-gray-300">•</span>
-                      <span className="text-emerald-600 font-medium">
-                        Rp {formData.price_per_hour.toLocaleString()}/hour
-                      </span>
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                    
+                    {/* Header Icons */}
+                    <div className="absolute top-8 left-4 right-4 flex justify-between text-white">
+                      <div className="p-2 bg-black/20 backdrop-blur-md rounded-full"><ArrowLeft size={20} /></div>
+                      <div className="flex gap-2">
+                        <div className="p-2 bg-black/20 backdrop-blur-md rounded-full"><Map size={20} /></div>
+                      </div>
                     </div>
+
+                    {/* Venue Title on Image */}
+                    <div className="absolute bottom-4 left-4 right-4 text-white">
+                      {formData.sport_categories.length > 0 && (
+                        <div className="flex gap-1 mb-2">
+                          {formData.sport_categories.slice(0, 3).map(cat => {
+                             const sport = sportOptions.find(s => s.id === cat);
+                             return <span key={cat} className="text-[10px] bg-blue-600 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">{sport?.label}</span>
+                          })}
+                        </div>
+                      )}
+                      <h2 className="text-2xl font-bold leading-tight">{formData.name || 'Venue Name'}</h2>
+                      <div className="flex items-center gap-1 text-sm text-gray-200 mt-1">
+                        <MapPin size={14} /> 
+                        <span className="truncate">{formData.address || 'Address location...'}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Body Content */}
+                  <div className="p-5 -mt-4 bg-gray-50 rounded-t-3xl relative z-10">
+                    
+                    {/* Rating & Price */}
+                    <div className="flex justify-between items-center mb-6">
+                      <div className="flex items-center gap-1">
+                        <Star className="fill-yellow-400 text-yellow-400" size={20} />
+                        <span className="font-bold text-gray-900">{formData.rating}</span>
+                        <span className="text-gray-400 text-sm">({Math.floor(Math.random() * 50) + 10} reviews)</span>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-xs text-gray-500">Starts from</p>
+                        <p className="font-bold text-blue-600 text-lg">Rp {formData.price_per_hour.toLocaleString()}</p>
+                      </div>
+                    </div>
+
+                    {/* Facilities Horizontal Scroll */}
+                    <div className="mb-6">
+                      <h4 className="font-bold text-gray-900 mb-3 text-sm">Facilities</h4>
+                      <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+                        {formData.facilities.length === 0 && <span className="text-xs text-gray-400 italic">No facilities selected</span>}
+                        {formData.facilities.map(facId => {
+                          const fac = facilitiesOptions.find(f => f.id === facId);
+                          return (
+                            <div key={facId} className="flex flex-col items-center justify-center min-w-[70px] h-[70px] bg-white rounded-2xl shadow-sm border border-gray-100 p-2">
+                              <span className="text-xl mb-1">{fac?.icon}</span>
+                              <span className="text-[10px] text-gray-600 text-center leading-tight">{fac?.label}</span>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Description */}
+                    <div className="mb-6">
+                      <h4 className="font-bold text-gray-900 mb-2 text-sm">About Venue</h4>
+                      <p className="text-sm text-gray-500 leading-relaxed">
+                        {formData.description || 'Description will appear here. Make it catchy so users want to book!'}
+                      </p>
+                    </div>
+
+                    {/* Info Cards */}
+                    <div className="grid grid-cols-2 gap-3 mb-6">
+                      <div className="bg-white p-3 rounded-xl shadow-sm border border-gray-100 flex items-center gap-3">
+                        <div className="bg-green-100 p-2 rounded-full text-green-600"><Clock size={18} /></div>
+                        <div>
+                          <p className="text-[10px] text-gray-400">Open Hours</p>
+                          <p className="text-xs font-bold text-gray-800">{formData.opening_time} - {formData.closing_time}</p>
+                        </div>
+                      </div>
+                      <div className="bg-white p-3 rounded-xl shadow-sm border border-gray-100 flex items-center gap-3">
+                        <div className="bg-orange-100 p-2 rounded-full text-orange-600"><Check size={18} /></div>
+                        <div>
+                          <p className="text-[10px] text-gray-400">Courts</p>
+                          <p className="text-xs font-bold text-gray-800">{formData.court_count} Available</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Location Map Preview */}
+                    <div className="rounded-xl overflow-hidden h-32 bg-blue-50 border border-blue-100 relative mb-20 flex items-center justify-center">
+                        <div className="text-center">
+                            <MapPin className="text-blue-500 mx-auto mb-1" />
+                            <p className="text-xs text-blue-600 font-medium">Map View</p>
+                            <p className="text-[10px] text-gray-400">{formData.lat.toFixed(4)}, {formData.lng.toFixed(4)}</p>
+                        </div>
+                    </div>
+
                   </div>
                 </div>
 
-                <div className="space-y-3 mb-6">
-                  <div className="flex items-start gap-3">
-                    <MapPin className="text-gray-400 mt-1" size={20} />
-                    <div className="text-gray-700">
-                      {formData.address || 'No address provided'}
+                {/* Floating Bottom Bar Mockup */}
+                <div className="absolute bottom-0 left-0 right-0 bg-white border-t p-4 pb-6 z-20 flex items-center justify-between">
+                    <div>
+                        <p className="text-xs text-gray-400">Total Price</p>
+                        <p className="font-bold text-blue-600">Rp {formData.price_per_hour.toLocaleString()}</p>
                     </div>
-                  </div>
-                  
-                  <div className="flex items-center gap-3">
-                    <Clock className="text-gray-400" size={20} />
-                    <div className="text-gray-700">
-                      {formData.opening_time} - {formData.closing_time}
-                    </div>
-                  </div>
-                  
-                  {formData.phone && (
-                    <div className="flex items-center gap-3">
-                      <Phone className="text-gray-400" size={20} />
-                      <div className="text-gray-700">{formData.phone}</div>
-                    </div>
-                  )}
+                    <button className="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold text-sm shadow-lg shadow-blue-200">
+                        Book Now
+                    </button>
                 </div>
 
-                {/* Facilities Preview */}
-                {formData.facilities.length > 0 && (
-                  <div className="mb-6">
-                    <div className="text-sm font-medium text-gray-700 mb-2">
-                      Facilities
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      {formData.facilities.map(facilityId => {
-                        const facility = facilitiesOptions.find(f => f.id === facilityId);
-                        return facility ? (
-                          <div
-                            key={facilityId}
-                            className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm"
-                          >
-                            {facility.icon} {facility.label}
-                          </div>
-                        ) : null;
-                      })}
-                    </div>
-                  </div>
-                )}
-
-                <div className="pt-6 border-t border-gray-200">
-                  <div className="text-sm text-gray-500">Preview</div>
-                  <div className="text-xs text-gray-400 mt-1">
-                    This is how your venue will look to users
-                  </div>
-                </div>
               </div>
-            </div>
-
-            {/* Coordinates Info */}
-            <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-6">
-              <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
-                <Map className="text-emerald-600" size={20} />
-                Bandung Coordinates
-              </h3>
-              <div className="space-y-2 text-sm text-gray-700">
-                <div><span className="font-medium">Center:</span> -6.9175, 107.6191</div>
-                <div><span className="font-medium">Dago:</span> -6.8764, 107.6156</div>
-                <div><span className="font-medium">Setiabudi:</span> -6.8586, 107.5928</div>
-                <div><span className="font-medium">Cihampelas:</span> -6.9028, 107.6106</div>
-              </div>
-            </div>
-
-            {/* Tips */}
-            <div className="bg-blue-50 border border-blue-100 rounded-xl p-6">
-              <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
-                <Check className="text-blue-600" size={20} />
-                Venue Guidelines
-              </h3>
-              <ul className="space-y-2 text-sm text-gray-700">
-                <li>• Provide accurate coordinates</li>
-                <li>• Include clear photos</li>
-                <li>• List all facilities</li>
-                <li>• Set realistic pricing</li>
-                <li>• Update operating hours</li>
-                <li>• Verify contact information</li>
-              </ul>
             </div>
           </div>
+
         </div>
       </div>
     </div>

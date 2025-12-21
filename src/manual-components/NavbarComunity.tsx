@@ -46,20 +46,6 @@ const Navbar = ({ activeTab, onTabChange, searchTerm, setSearchTerm }: NavbarPro
 
                 {/* Desktop Tabs */}
                 <div className="hidden md:flex items-center gap-1 bg-gray-100 p-1 rounded-xl">
-                    <button
-                        onClick={() => {
-                            const modal = document.getElementById('my_modal_2') as HTMLDialogElement;
-                            modal.showModal();
-                        }}
-                        className={cn(
-                            "px-6 py-2 rounded-lg font-medium transition-all duration-300",
-                            activeTab === "event"
-                                ? "shadow-md text-[#006989]"
-                                : "text-gray-600 hover:text-[#006989]"
-                        )}
-                    >
-                        Create
-                    </button>
                     <dialog id="my_modal_2" className="modal">
                         <div className="modal-box backdrop-blur-lg text-center shadow-xl rounded-xl text-white">
                             <h3 className="text-2xl font-semibold mb-4">Welcome to Sportify.id</h3>
