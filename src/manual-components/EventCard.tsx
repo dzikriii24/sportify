@@ -1,4 +1,4 @@
-import { Calendar, MapPin, Users, Clock, DollarSign, Award, ChevronRight } from "lucide-react";
+import { Calendar, MapPin, Users, DollarSign, Award, ChevronRight } from "lucide-react";
 import { Card } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
@@ -23,7 +23,6 @@ interface EventCardProps {
 }
 
 const EventCard = ({ 
-  id,
   title, 
   start_date, 
   start_time, 

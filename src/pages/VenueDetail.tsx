@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
-import Navbar from "../manual-components/NavbarComunity";
 import { Button } from "../manual-components/ui/button";
 import { Badge } from "../manual-components/ui/badge";
 import { 

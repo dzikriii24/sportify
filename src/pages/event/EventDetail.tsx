@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "../../lib/supabaseClient";
 import {
-  Calendar, Clock, MapPin, Users, ArrowLeft,
-  Share2, ShieldCheck, Banknote, AlertCircle, ArrowRight
+  Calendar, Clock, MapPin, ArrowLeft,
+  Share2, ShieldCheck, AlertCircle, ArrowRight
 } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -76,7 +76,7 @@ const EventDetail = () => {
       setEvent(eventData);
 
       // C. Get Participants List (Join ke profile)
-      const { data: partData, error: partError } = await supabase
+      const { data: partData } = await supabase
         .from('004_event_partisipants')
         .select(`
           user:profile_user_fixs (id, full_name, username, avatar_url)

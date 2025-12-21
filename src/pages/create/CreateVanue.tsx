@@ -2,11 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
 import {
-  MapPin, Phone, Clock, DollarSign,
+  MapPin, Clock,
   Star, Upload, X, Plus, ArrowLeft,
-  Wifi, Car, ShowerHead, Coffee, 
-  Map, Check, Link as LinkIcon, RefreshCw,
-  Eye, Info
+  Map, Check, RefreshCw,
+  Eye
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 

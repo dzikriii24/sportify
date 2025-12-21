@@ -6,7 +6,6 @@ import {
   Search, ChevronDown,
   Sparkles, ArrowRight,
   Loader2,
-  MapPin,
   Users as UsersIcon
 } from "lucide-react";
 import Navbar from "../manual-components/NavbarComunity";

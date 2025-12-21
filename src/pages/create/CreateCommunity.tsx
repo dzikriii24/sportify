@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient'; // Pastikan path ini benar
 import {
-  Users, MapPin, Target, Trophy,
+  Users, Target,
   Hash, Type, Globe, Lock,
   Upload, X, Plus, ArrowLeft, Camera
 } from 'lucide-react';
@@ -89,7 +89,7 @@ const CreateCommunity = () => {
     setCheckingName(true);
     try {
       // UPDATE: Menggunakan nama tabel unik '01_komunitas'
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('01_komunitas')
         .select('name')
         .eq('name', name.trim())

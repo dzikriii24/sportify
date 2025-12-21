@@ -2,9 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
 import {
-  Calendar, Clock, MapPin, Users, DollarSign,
-  Upload, X, Plus, ChevronDown, Search,
-  AlertCircle, Check, ArrowLeft, Eye, RefreshCw
+  Calendar, Clock, MapPin,
+  Upload, X, ChevronDown, Check, ArrowLeft, Eye, RefreshCw
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -15,12 +14,6 @@ const skillLevels = [
   { value: 'advanced', label: 'Advanced', color: 'bg-orange-100 text-orange-800' },
   { value: 'professional', label: 'Professional', color: 'bg-red-100 text-red-800' },
   { value: 'all', label: 'All Levels', color: 'bg-blue-100 text-blue-800' },
-];
-
-const eventStatuses = [
-  { value: 'draft', label: 'Draft', color: 'bg-gray-100 text-gray-800' },
-  { value: 'upcoming', label: 'Upcoming', color: 'bg-blue-100 text-blue-800' },
-  { value: 'full', label: 'Full', color: 'bg-red-100 text-red-800' },
 ];
 
 const CreateEvent = () => {
@@ -163,7 +156,7 @@ const CreateEvent = () => {
       console.log("Sending Payload:", eventPayload); // Debugging
 
       // 4. Insert ke Supabase
-      const { data: event, error } = await supabase
+      const { data: error } = await supabase
         .from('eventsnew')
         .insert([eventPayload])
         .select()

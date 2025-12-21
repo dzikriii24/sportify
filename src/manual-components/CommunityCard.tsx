@@ -1,4 +1,4 @@
-  import { Users, TrendingUp, Clock, CheckCircle, Plus, ChevronRight, MoreVertical, Crown } from "lucide-react";
+  import { Users, TrendingUp, Clock, CheckCircle, Plus, ChevronRight, Crown } from "lucide-react";
   import { Card } from "./ui/card";
   import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
   import { Badge } from "./ui/badge";
