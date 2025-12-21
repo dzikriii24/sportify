@@ -49,7 +49,7 @@ const Login = () => {
       
       {/* Left Image Section */}
       <div className="hidden lg:block relative w-0 flex-1 overflow-hidden">
-         <img className="absolute inset-0 h-full w-full object-cover" src="https://images.unsplash.com/photo-1552674605-5d28c4e14076?q=80&w=2070" alt="Team Sports" />
+         <img className="absolute inset-0 h-auto w-auto object-center" src="../src/assets/sportify-logo-light.svg" alt="Team Sports" />
          <div className="absolute inset-0 bg-[#006989]/80 mix-blend-multiply" />
          <div className="absolute bottom-0 left-0 p-16 text-white">
             <h2 className="text-4xl font-bold mb-4">Kembali Beraksi</h2>
@@ -77,7 +77,7 @@ const Login = () => {
                   type="email" required
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#006989] focus:border-transparent transition outline-none"
+                  className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#006989] focus:border-transparent transition outline-none text-gray-700"
                   placeholder="email@anda.com"
                 />
               </div>
@@ -91,7 +91,7 @@ const Login = () => {
                   type={showPassword ? 'text' : 'password'} required
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#006989] focus:border-transparent transition outline-none"
+                  className="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#006989] focus:border-transparent transition outline-none text-gray-700"
                   placeholder="••••••••"
                 />
                 <button

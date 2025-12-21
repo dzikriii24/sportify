@@ -331,7 +331,7 @@ const CreateCommunity = () => {
                             setNameAvailable(null);
                           }
                         }}
-                        className="w-full px-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#006989] focus:border-transparent transition text-lg"
+                        className="w-full px-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#006989] focus:border-transparent transition text-lg text-gray-700"
                         placeholder="e.g., Bandung Padel Elite"
                         maxLength={50}
                       />
@@ -420,7 +420,7 @@ const CreateCommunity = () => {
                   <textarea
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    className="w-full h-48 px-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#006989] focus:border-transparent transition resize-none"
+                    className="w-full h-48 px-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#006989] focus:border-transparent transition resize-none text-gray-700"
                     placeholder="Describe what your community is about, activities, schedule, rules, expectations, etc..."
                     maxLength={500}
                   />

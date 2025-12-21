@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom"; // Pastikan import ini ada
 import Navbar from "../manual-components/NavbarComunity";
 import { Card } from "../manual-components/ui/card";
 import { Badge } from "../manual-components/ui/badge";
@@ -25,10 +25,24 @@ interface Venue {
 
 const Courts = () => {
     const navigate = useNavigate();
+    // Kita tetap butuh state ini untuk memenuhi props Navbar, 
+    // meskipun di halaman ini defaultnya tidak ada yg aktif secara visual (karena kita di page Courts)
+    const [activeTab, setActiveTab] = useState<"community" | "event">("community");
+    
     const [venues, setVenues] = useState<Venue[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
-    const [activeTab, setActiveTab] = useState<"community" | "event">("community");
+
+    // --- LOGIC NAVIGASI ---
+    // Fungsi ini akan dipanggil saat user klik "Community" atau "Event" di Navbar
+    const handleTabChange = (tab: "community" | "event") => {
+        // Set local state (opsional, agar UI button bereaksi sebentar)
+        setActiveTab(tab);
+        
+        // Redirect ke Dashboard
+        // Karena DashboardCommunity menangani kedua tab tersebut
+        navigate("/dashboard-community");
+    };
 
     // 1. Fetch Data dari Supabase
     useEffect(() => {
@@ -37,7 +51,7 @@ const Courts = () => {
                 const { data, error } = await supabase
                     .from('venuesnew')
                     .select('*')
-                    .eq('is_active', true) // Hanya ambil venue yang aktif
+                    .eq('is_active', true) 
                     .order('created_at', { ascending: false });
 
                 if (error) throw error;
@@ -64,7 +78,7 @@ const Courts = () => {
         }).format(amount);
     };
 
-    // 3. Format Jam (Hilangkan detik: 08:00:00 -> 08:00)
+    // 3. Format Jam
     const formatTime = (timeString: string) => {
         return timeString?.slice(0, 5) || "N/A";
     };
@@ -77,9 +91,10 @@ const Courts = () => {
 
     return (
         <div className="min-h-screen bg-background">
+            {/* Navbar dengan Navigasi Aktif */}
             <Navbar
                 activeTab={activeTab}
-                onTabChange={setActiveTab}
+                onTabChange={handleTabChange} // Menggunakan handler custom kita
                 searchTerm={searchTerm}
                 setSearchTerm={setSearchTerm}
             />
@@ -102,7 +117,6 @@ const Courts = () => {
                             <h3 className="text-xl font-semibold text-foreground mb-2">Interactive Map</h3>
                             <p className="text-muted-foreground">Map integration coming soon</p>
                         </div>
-                        {/* Decorative elements */}
                         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzAwNjk4OSIgc3Ryb2tlLXdpZHRoPSIwLjUiIG9wYWNpdHk9IjAuMSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNncmlkKSIvPjwvc3ZnPg==')] opacity-50" />
                     </div>
                 </Card>
@@ -120,9 +134,9 @@ const Courts = () => {
                                 key={venue.id}
                                 className="p-0 overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer border-[#006989] hover:border-[#006989]/80 animate-scale-in flex flex-col h-full"
                                 style={{ animationDelay: `${index * 0.1}s` }}
-                                onClick={() => navigate(`/venue/${venue.id}`)} // Link ke detail page
+                                onClick={() => navigate(`/venue/${venue.id}`)}
                             >
-                                {/* Photo Display (Mengambil foto pertama jika ada) */}
+                                {/* Photo Display */}
                                 <div className="h-48 bg-gray-200 relative">
                                     {venue.photos && venue.photos.length > 0 ? (
                                         <img 
@@ -135,7 +149,6 @@ const Courts = () => {
                                             <MapPin size={32} />
                                         </div>
                                     )}
-                                    {/* Sport Category Badge */}
                                     <div className="absolute top-2 left-2 flex gap-1">
                                         {venue.sport_categories?.slice(0, 2).map((cat) => (
                                             <Badge key={cat} className="bg-black/60 backdrop-blur-sm text-white hover:bg-black/80 border-none capitalize">
@@ -152,7 +165,7 @@ const Courts = () => {
                                             <h3 className="text-lg font-bold text-[#006989] mb-1 line-clamp-1">
                                                 {venue.name}
                                             </h3>
-                                            <div className="flex items-center gap-2">
+                                            <div className="flex items-center gap-2 text-gray-500">
                                                 <div className="flex items-center gap-1">
                                                     <Star className="w-4 h-4 fill-yellow-500 text-yellow-500" />
                                                     <span className="text-sm font-medium text-foreground">
@@ -165,14 +178,13 @@ const Courts = () => {
                                                 </span>
                                             </div>
                                         </div>
-                                        {/* Price Badge */}
                                         <Badge className="bg-white border-[#006989] border text-[#006989] hover:bg-[#006989]/5 whitespace-nowrap">
                                             {formatCurrency(venue.price_per_hour)}/jam
                                         </Badge>
                                     </div>
 
                                     {/* Address & Hours */}
-                                    <div className="space-y-2 flex-1">
+                                    <div className="space-y-2 flex-1 text-gray-500">
                                         <div className="flex items-start gap-2 text-sm text-muted-foreground">
                                             <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" />
                                             <span className="line-clamp-2">{venue.address}</span>

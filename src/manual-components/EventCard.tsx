@@ -1,4 +1,4 @@
-import { Calendar, MapPin, Users, Clock, DollarSign, Award, ChevronRight } from "lucide-react";
+import { Calendar, MapPin, Users, DollarSign, Award, ChevronRight, Clock } from "lucide-react";
 import { Card } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
@@ -39,6 +39,7 @@ const EventCard = ({
   cover_url,
   onView
 }: EventCardProps) => {
+  
   const statusColors = {
     open: "bg-green-100 text-green-700 border-green-200",
     full: "bg-red-100 text-red-700 border-red-200",
@@ -71,124 +72,137 @@ const EventCard = ({
   return (
     <Card 
       onClick={onView}
-      className="group relative overflow-hidden border border-gray-200 bg-white hover:border-[#006989]/50 hover:shadow-2xl transition-all duration-300 cursor-pointer rounded-2xl animate-fade-in"
+      className="group relative flex flex-col h-full overflow-hidden border border-gray-200 bg-white hover:border-[#006989]/50 hover:shadow-2xl transition-all duration-300 cursor-pointer rounded-2xl active:scale-[0.99]"
     >
-      {/* Background Image with Overlay */}
-      <div className="absolute inset-0 z-0">
+      {/* 1. HEADER IMAGE SECTION (Aspect Video) */}
+      <div className="relative aspect-video w-full overflow-hidden bg-gray-100">
         <img 
           src={cover_url} 
           alt={title}
-          className="w-full h-48 object-cover opacity-20 group-hover:opacity-30 transition-opacity duration-300"
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/90 to-white"></div>
-      </div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60" />
 
-      <div className="relative z-10 p-6">
-        {/* Header with Status Badge */}
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="w-2 h-2 bg-[#006989] rounded-full"></div>
-              <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">
-                {community_name}
-              </span>
-            </div>
-            <h3 className="text-xl font-bold text-gray-900 group-hover:text-[#006989] transition-colors line-clamp-2 mb-2">
-              {title}
-            </h3>
-          </div>
-          <Badge className={`${statusColors[status]} border px-3 py-1 font-semibold text-xs`}>
-            {statusText[status]}
+        {/* Badges on Image */}
+        <div className="absolute top-3 left-3">
+          <Badge className="bg-white/90 text-[#006989] backdrop-blur-sm border-0 font-bold shadow-sm uppercase tracking-wider text-[10px]">
+            {community_name}
           </Badge>
         </div>
 
-        {/* Event Details */}
-        <div className="space-y-3 mb-6">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center">
-              <Calendar className="w-5 h-5 text-blue-600" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-gray-900">{formatDate(start_date)}</p>
-              <p className="text-xs text-gray-500">
-                {formatTime(start_time)} - {formatTime(end_time)}
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-purple-50 flex items-center justify-center">
-              <MapPin className="w-5 h-5 text-purple-600" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-gray-900 line-clamp-1">{venue}</p>
-              <p className="text-xs text-gray-500 line-clamp-1">{location}</p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-orange-50 flex items-center justify-center">
-              <Award className="w-5 h-5 text-orange-600" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-gray-900">Level: {level}</p>
-              <p className="text-xs text-gray-500">
-                {fee > 0 ? (
-                  <span className="flex items-center gap-1">
-                    <DollarSign className="w-3 h-3" /> Rp {fee.toLocaleString('id-ID')}
-                  </span>
-                ) : 'Gratis'}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Participants & Action */}
-        <div className="flex items-center justify-between pt-5 border-t border-gray-100">
-          <div className="flex items-center gap-3">
-            <div className="flex -space-x-2">
-              {[1, 2, 3].map((i) => (
-                <div 
-                  key={i}
-                  className="w-8 h-8 rounded-full border-2 border-white bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center"
-                >
-                  <Users className="w-3 h-3 text-blue-600" />
-                </div>
-              ))}
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-gray-900">
-                {participants} / {max_participants}
-              </p>
-              <p className="text-xs text-gray-500">Peserta</p>
-            </div>
-          </div>
-
-          <Button 
-            onClick={(e) => {
-              e.stopPropagation();
-              onView();
-            }}
-            disabled={status === "full" || status === "closed"}
-            className={`px-5 py-2.5 rounded-xl font-semibold transition-all duration-300 
-              ${status === "open" 
-                ? "bg-gradient-to-r from-[#006989] to-[#009ab5] hover:from-[#005a75] hover:to-[#008094] text-white shadow-lg hover:shadow-xl" 
-                : status === "upcoming"
-                ? "bg-gradient-to-r from-blue-100 to-blue-200 text-blue-700 hover:bg-blue-300"
-                : "bg-gray-100 text-gray-400 cursor-not-allowed"
-              } flex items-center gap-2`}
-          >
-            {status === "open" && "Daftar Sekarang"}
-            {status === "full" && "Event Penuh"}
-            {status === "upcoming" && "Segera Dibuka"}
-            {status === "closed" && "Event Selesai"}
-            <ChevronRight size={16} className={`${status === "open" ? "group-hover:translate-x-1" : ""} transition-transform`} />
-          </Button>
+        <div className="absolute top-3 right-3">
+           <Badge className={`${statusColors[status]} border shadow-sm px-2 py-0.5 font-bold text-[10px]`}>
+            {statusText[status]}
+          </Badge>
         </div>
       </div>
 
-      {/* Hover Effect Border */}
-      <div className="absolute inset-0 rounded-2xl border-2 border-transparent group-hover:border-[#006989]/20 pointer-events-none transition-all duration-300"></div>
+      {/* 2. CONTENT BODY (Flex-1) */}
+      <div className="flex flex-col flex-1 p-5">
+        
+        {/* Title */}
+        <div className="mb-4">
+          <h3 className="text-lg sm:text-xl font-bold text-gray-900 group-hover:text-[#006989] transition-colors break-words leading-tight">
+            {title}
+          </h3>
+        </div>
+
+        {/* Event Details Grid - Flex Grow pushes footer down */}
+        <div className="space-y-3 flex-grow mb-6">
+          
+          {/* Date & Time */}
+          <div className="flex items-start gap-3">
+            <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center shrink-0 mt-0.5">
+              <Calendar className="w-4 h-4 text-blue-600" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-gray-900">{formatDate(start_date)}</p>
+              <div className="flex items-center gap-1 text-xs text-gray-500">
+                <Clock size={10} />
+                {formatTime(start_time)} - {formatTime(end_time)}
+              </div>
+            </div>
+          </div>
+
+          {/* Venue */}
+          <div className="flex items-start gap-3">
+            <div className="w-8 h-8 rounded-lg bg-purple-50 flex items-center justify-center shrink-0 mt-0.5">
+              <MapPin className="w-4 h-4 text-purple-600" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-gray-900 truncate">{venue}</p>
+              <p className="text-xs text-gray-500 truncate">{location}</p>
+            </div>
+          </div>
+
+          {/* Level & Fee */}
+          <div className="flex items-start gap-3">
+            <div className="w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center shrink-0 mt-0.5">
+              <Award className="w-4 h-4 text-orange-600" />
+            </div>
+            <div>
+               <div className="flex items-center gap-2">
+                 <p className="text-sm font-semibold text-gray-900">{level}</p>
+                 <span className="text-gray-300">•</span>
+                 <p className={`text-sm font-semibold ${fee > 0 ? 'text-[#006989]' : 'text-green-600'}`}>
+                    {fee > 0 ? (
+                      <span className="flex items-center gap-0.5">
+                        <DollarSign className="w-3 h-3" /> {fee.toLocaleString('id-ID')}
+                      </span>
+                    ) : 'Gratis'}
+                 </p>
+               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 3. FOOTER (Action & Participants) */}
+        <div className="mt-auto pt-4 border-t border-gray-100">
+          <div className="flex items-center justify-between gap-2">
+            
+            {/* Participants */}
+            <div className="flex items-center gap-2">
+              <div className="flex -space-x-2 overflow-hidden">
+                {[1, 2, 3].map((i) => (
+                  <div 
+                    key={i}
+                    className="w-7 h-7 rounded-full border-2 border-white bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center shrink-0"
+                  >
+                    <Users className="w-3 h-3 text-gray-500" />
+                  </div>
+                ))}
+              </div>
+              <div className="text-xs">
+                <span className="font-bold text-gray-900">{participants}</span>
+                <span className="text-gray-500">/{max_participants}</span>
+              </div>
+            </div>
+
+            {/* Button */}
+            <Button 
+              onClick={(e) => {
+                e.stopPropagation();
+                onView();
+              }}
+              disabled={status === "full" || status === "closed"}
+              size="sm"
+              className={`rounded-lg font-semibold transition-all duration-300 text-xs h-9 px-4
+                ${status === "open" 
+                  ? "bg-gradient-to-r from-[#006989] to-[#009ab5] hover:from-[#005a75] hover:to-[#008094] text-white shadow-md hover:shadow-lg" 
+                  : status === "upcoming"
+                  ? "bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200"
+                  : "bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200"
+                } flex items-center gap-1.5`}
+            >
+              {status === "open" && "Daftar"}
+              {status === "full" && "Penuh"}
+              {status === "upcoming" && "Segera"}
+              {status === "closed" && "Selesai"}
+              <ChevronRight size={14} className={`${status === "open" ? "group-hover:translate-x-0.5" : ""} transition-transform`} />
+            </Button>
+          </div>
+        </div>
+      </div>
     </Card>
   );
 };

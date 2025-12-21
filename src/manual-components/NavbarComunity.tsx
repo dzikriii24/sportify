@@ -3,7 +3,7 @@ import { Search, MapPin, Menu, X } from "lucide-react";
 import { Input } from "./ui/input";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "./lib/utils";
-import "../../src/assets/sportify-logo-dark.svg"
+import "../../src/assets/sportify-logo-dark.svg";
 
 
 interface NavbarProps {
@@ -19,6 +19,7 @@ const Navbar = ({ activeTab, onTabChange, searchTerm, setSearchTerm }: NavbarPro
     const location = useLocation();
     const [isOpen, setIsOpen] = useState(false);
     const isDashboard = location.pathname.startsWith("/dashboard");
+    const showNavigation = location.pathname.startsWith("/dashboard") || location.pathname === "/courts";
 
     return (
         <nav className="border-b sticky top-0 z-50 backdrop-blur-sm bg-white/80">
@@ -27,7 +28,7 @@ const Navbar = ({ activeTab, onTabChange, searchTerm, setSearchTerm }: NavbarPro
                 {/* Logo */}
                 <Link to="/dashboard-community" className="flex items-center gap-2 group">
                     <div className="w-10 h-10 rounded-xl flex items-center justify-center transition-transform group-hover:scale-105">
-                        <img src="/src/assets/sportify-logo-dark.svg" alt="Sportify Logo" />
+                        <img src="../src/assets/sportify-logo-dark.svg" alt="Sportify Logo" />
                     </div>
                 </Link>
 
@@ -84,13 +85,13 @@ const Navbar = ({ activeTab, onTabChange, searchTerm, setSearchTerm }: NavbarPro
                             <button>close</button>
                         </form>
                     </dialog>
-                    {isDashboard && (
+                    {showNavigation && (
                         <>
                             <button
                                 onClick={() => onTabChange("community")}
                                 className={cn(
                                     "px-6 py-2 rounded-lg font-medium transition-all duration-300",
-                                    activeTab === "community"
+                                    activeTab === "community" && location.pathname !== "/courts" // Optional styling fix
                                         ? "shadow-md text-[#006989]"
                                         : "text-gray-600 hover:text-[#006989]"
                                 )}
@@ -120,7 +121,7 @@ const Navbar = ({ activeTab, onTabChange, searchTerm, setSearchTerm }: NavbarPro
                         )}
                     >
                         <MapPin className="w-4 h-4 text-[#006989]" />
-                        Padel Courts
+                        Courts
                     </Link>
                 </div>
 

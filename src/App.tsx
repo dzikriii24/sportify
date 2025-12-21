@@ -14,6 +14,7 @@ import Index from "./pages/Index";
 import Courts from "./pages/Courts";
 import ChatCommunity from "./pages/Chat";
 import NotFound from "./pages/NotFound";
+import ResetPasswordPage from "../src/loginAuth/ResetPasswordPage";
 
 import CreateCommunity from "./pages/create/CreateCommunity";
 import CreateEvent from "./pages/create/CreateEvent";
@@ -35,6 +36,7 @@ function App() {
             <Route path="/" element={<Dashboard />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ResetPasswordPage />} />
             <Route path="/dashboard-community" element={<DashboardCommunity />} />
             <Route path="/" element={<Index />} />
             <Route path="/courts" element={<Courts />} />
