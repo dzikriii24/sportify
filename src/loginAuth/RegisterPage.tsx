@@ -193,7 +193,7 @@ const Register = () => {
               <div className="relative">
                 <input
                   type="text" required
-                  className="block w-full px-3 py-3 pl-10 border border-gray-300 rounded-xl focus:ring-[#006989] focus:border-[#006989] sm:text-sm"
+                  className="block w-full px-3 py-3 pl-10 border border-gray-300 rounded-xl focus:ring-[#006989] focus:border-[#006989] sm:text-sm text-gray-700"
                   placeholder="Budi Santoso"
                   value={formData.fullName}
                   onChange={e => setFormData({...formData, fullName: e.target.value})}
@@ -216,7 +216,7 @@ const Register = () => {
                 <input
                   type="text" required
                   className={`block w-full px-3 py-3 border rounded-xl focus:outline-none focus:ring-1 sm:text-sm transition
-                    ${usernameAvailable === false ? 'border-red-300 focus:border-red-500' : 'border-gray-300 focus:border-[#006989]'}`}
+                    ${usernameAvailable === false ? 'border-red-300 focus:border-red-500' : 'border-gray-300 focus:border-[#006989]'} text-gray-700`}
                   placeholder="budi_s"
                   value={formData.username}
                   onChange={e => setFormData({...formData, username: e.target.value.toLowerCase().replace(/\s/g, '')})}
@@ -228,7 +228,7 @@ const Register = () => {
                 <div className="relative">
                   <input
                     type="tel"
-                    className="block w-full px-3 py-3 pl-9 border border-gray-300 rounded-xl focus:ring-[#006989] focus:border-[#006989] sm:text-sm"
+                    className="block w-full px-3 py-3 pl-9 border border-gray-300 rounded-xl focus:ring-[#006989] focus:border-[#006989] sm:text-sm text-gray-700"
                     placeholder="0812..."
                     value={formData.phone}
                     onChange={e => setFormData({...formData, phone: e.target.value})}
@@ -244,7 +244,7 @@ const Register = () => {
               <div className="relative">
                 <input
                   type="text"
-                  className="block w-full px-3 py-3 pl-10 border border-gray-300 rounded-xl focus:ring-[#006989] focus:border-[#006989] sm:text-sm"
+                  className="block w-full px-3 py-3 pl-10 border border-gray-300 rounded-xl focus:ring-[#006989] focus:border-[#006989] sm:text-sm text-gray-700"
                   placeholder="Bandung, Jawa Barat"
                   value={formData.location}
                   onChange={e => setFormData({...formData, location: e.target.value})}
@@ -259,7 +259,7 @@ const Register = () => {
               <div className="relative">
                 <input
                   type="email" required
-                  className="block w-full px-3 py-3 pl-10 border border-gray-300 rounded-xl focus:ring-[#006989] focus:border-[#006989] sm:text-sm"
+                  className="block w-full px-3 py-3 pl-10 border border-gray-300 rounded-xl focus:ring-[#006989] focus:border-[#006989] sm:text-sm text-gray-700"
                   placeholder="email@anda.com"
                   value={formData.email}
                   onChange={e => setFormData({...formData, email: e.target.value})}
@@ -274,7 +274,7 @@ const Register = () => {
                 <div className="relative">
                   <input
                     type={showPassword ? 'text' : 'password'} required
-                    className="block w-full px-3 py-3 pl-10 pr-10 border border-gray-300 rounded-xl focus:ring-[#006989] focus:border-[#006989] sm:text-sm"
+                    className="block w-full px-3 py-3 pl-10 pr-10 border border-gray-300 rounded-xl focus:ring-[#006989] focus:border-[#006989] sm:text-sm text-gray-700"
                     placeholder="Password"
                     value={formData.password}
                     onChange={e => setFormData({...formData, password: e.target.value})}
@@ -291,7 +291,7 @@ const Register = () => {
                   <input
                     type={showConfirmPassword ? 'text' : 'password'} required
                     className={`block w-full px-3 py-3 pl-10 pr-10 border rounded-xl focus:ring-1 sm:text-sm
-                      ${formData.confirmPassword && formData.password !== formData.confirmPassword ? 'border-red-300' : 'border-gray-300 focus:border-[#006989]'}`}
+                      ${formData.confirmPassword && formData.password !== formData.confirmPassword ? 'border-red-300' : 'border-gray-300 focus:border-[#006989]'} text-gray-700`}
                     placeholder="Konfirmasi Password"
                     value={formData.confirmPassword}
                     onChange={e => setFormData({...formData, confirmPassword: e.target.value})}

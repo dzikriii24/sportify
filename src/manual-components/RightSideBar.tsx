@@ -70,7 +70,7 @@ const RightSidebar = () => {
                 <div className="p-6 flex flex-col h-full">
                     
                     {/* PROFILE CARD */}
-                    <div className="relative overflow-hidden rounded-2xl shadow-lg bg-white group border border-gray-100">
+                    <div className="relative rounded-2xl shadow-lg bg-white group border border-gray-100">
                         <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-r from-[#006989] to-[#009ab5]"></div>
                         
                         <div className="relative px-6 pt-12 pb-6 flex flex-col items-center text-center">

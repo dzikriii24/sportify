@@ -222,7 +222,7 @@ const CreateEvent = () => {
                       <select
                         value={formData.community_id}
                         onChange={e => setFormData({ ...formData, community_id: e.target.value })}
-                        className="w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-purple-500"
+                        className="w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-purple-500 text-gray-700"
                         disabled={!!communityId}
                       >
                         <option value="">Select Community</option>
@@ -239,7 +239,7 @@ const CreateEvent = () => {
                       type="text" required
                       value={formData.title}
                       onChange={e => setFormData({ ...formData, title: e.target.value })}
-                      className="w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-purple-500"
+                      className="w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-purple-500 text-gray-700"
                       placeholder="e.g. Sunday Morning Match"
                     />
                   </div>
@@ -250,7 +250,7 @@ const CreateEvent = () => {
                       rows={3}
                       value={formData.description}
                       onChange={e => setFormData({ ...formData, description: e.target.value })}
-                      className="w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-purple-500"
+                      className="w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-purple-500 text-gray-700"
                       placeholder="Event details, rules, equipment needed..."
                     />
                   </div>
@@ -272,17 +272,17 @@ const CreateEvent = () => {
                         type="date" required
                         value={formData.start_date}
                         onChange={e => setFormData({ ...formData, start_date: e.target.value })}
-                        className="w-full px-4 py-2 border rounded-xl"
+                        className="w-full px-4 py-2 border rounded-xl text-gray-500"
                       />
                     </div>
                     <div className="flex gap-2">
                       <div className="flex-1">
                         <label className="block text-sm font-medium text-gray-700 mb-1">Start</label>
-                        <input type="time" required value={formData.start_time} onChange={e => setFormData({ ...formData, start_time: e.target.value })} className="w-full px-2 py-2 border rounded-xl" />
+                        <input type="time" required value={formData.start_time} onChange={e => setFormData({ ...formData, start_time: e.target.value })} className="w-full px-2 py-2 border rounded-xl text-gray-500" />
                       </div>
                       <div className="flex-1">
                         <label className="block text-sm font-medium text-gray-700 mb-1">End</label>
-                        <input type="time" required value={formData.end_time} onChange={e => setFormData({ ...formData, end_time: e.target.value })} className="w-full px-2 py-2 border rounded-xl" />
+                        <input type="time" required value={formData.end_time} onChange={e => setFormData({ ...formData, end_time: e.target.value })} className="w-full px-2 py-2 border rounded-xl text-gray-500" />
                       </div>
                     </div>
                   </div>
@@ -430,70 +430,99 @@ const CreateEvent = () => {
               {/* EVENT CARD PREVIEW */}
               <div className="bg-white rounded-3xl shadow-xl border border-gray-200 overflow-hidden relative">
 
-                {/* Image */}
-                <div className="h-48 bg-gray-200 relative">
-                  {coverPreview ? (
-                    <img src={coverPreview} className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-gray-400 bg-gradient-to-br from-purple-100 to-pink-100">
-                      <Calendar size={40} className="text-purple-300" />
-                    </div>
-                  )}
-                  <div className="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs font-bold text-purple-700 shadow-sm uppercase">
-                    {formData.level}
-                  </div>
-                </div>
+                  {/* Image */}
+                  <div className="h-48 bg-gray-200 relative">
+                    {coverPreview ? (
+                      <img
+                        src={coverPreview}
+                        className="w-full h-full object-cover"
+                        alt="Event Cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-gray-400 bg-gradient-to-br from-purple-100 to-pink-100">
+                        <Calendar size={40} className="text-purple-300" />
+                      </div>
+                    )}
 
-                {/* Content */}
-                <div className="p-6">
-                  <div className="flex justify-between items-start mb-2">
-                    <h2 className="text-xl font-bold text-gray-900 leading-tight">
-                      {formData.title || 'Event Title'}
-                    </h2>
-                    <div className="text-right">
-                      <p className="text-xs text-gray-500">Fee</p>
-                      <p className="font-bold text-purple-600">
-                        {parseInt(formData.fee) > 0 ? `Rp ${parseInt(formData.fee).toLocaleString()}` : 'FREE'}
-                      </p>
+                    {/* Skill Level Badge */}
+                    <div className="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs font-bold text-purple-700 shadow-sm uppercase">
+                      {formData.level}
                     </div>
                   </div>
 
-                  {/* Info Row */}
-                  <div className="flex items-center gap-4 text-sm text-gray-600 mb-4 mt-4">
-                    <div className="flex items-center gap-1.5">
-                      <Calendar size={16} className="text-purple-500" />
-                      <span>{formData.start_date || 'Date'}</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <Clock size={16} className="text-purple-500" />
-                      <span>{formData.start_time} - {formData.end_time}</span>
-                    </div>
-                  </div>
+                  {/* Content */}
+                  <div className="p-6">
 
-                  <div className="flex items-center gap-2 text-sm text-gray-600 mb-4">
-                    <MapPin size={16} className="text-purple-500" />
-                    <span className="truncate">{selectedVenue ? selectedVenue.name : 'Venue Location'}</span>
-                  </div>
+                    {/* Title & Fee */}
+                    <div className="flex justify-between items-start mb-2 gap-3">
+                      <h2 className="text-xl font-bold text-gray-900 leading-tight line-clamp-2">
+                        {formData.title || 'Event Title'}
+                      </h2>
 
-                  {/* Participants Bar */}
-                  <div className="mt-4 pt-4 border-t border-gray-100">
-                    <div className="flex justify-between text-xs text-gray-500 mb-1">
-                      <span>0 joined</span>
-                      <span>{formData.capacity} spots</span>
+                      <div className="text-right shrink-0">
+                        <p className="text-xs text-gray-500">Fee</p>
+                        <p className="font-bold text-purple-600">
+                          {parseInt(formData.fee) > 0
+                            ? `Rp ${parseInt(formData.fee).toLocaleString()}`
+                            : 'FREE'}
+                        </p>
+                      </div>
                     </div>
-                    <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-                      <div className="h-full bg-purple-500 w-0"></div>
+
+                    {/* Date & Time */}
+                    <div className="flex items-center gap-4 text-sm text-gray-600 mb-4 mt-3">
+                      <div className="flex items-center gap-1.5">
+                        <Calendar size={16} className="text-purple-500" />
+                        <span>{formData.start_date || 'Date'}</span>
+                      </div>
+
+                      <div className="flex items-center gap-1.5">
+                        <Clock size={16} className="text-purple-500" />
+                        <span>
+                          {formData.start_time} - {formData.end_time}
+                        </span>
+                      </div>
                     </div>
-                  </div>
 
-                  {/* Join Button Mockup */}
-                  <div className="mt-4">
-                    <button className="w-full py-2.5 bg-purple-600 text-white rounded-xl font-bold text-sm shadow-md shadow-purple-200">
-                      Join Event
-                    </button>
-                  </div>
+                    {/* DESCRIPTION (REALTIME) */}
+                    <p className={`text-sm mb-4 ${
+                      formData.description ? 'text-gray-600' : 'text-gray-400 italic'
+                    } line-clamp-3`}>
+                      {formData.description || 'Add a description to attract more participants.'}
+                    </p>
 
-                </div>
+                    {/* Venue */}
+                    <div className="flex items-center gap-2 text-sm text-gray-600 mb-4">
+                      <MapPin size={16} className="text-purple-500" />
+                      <span className="truncate">
+                        {selectedVenue ? selectedVenue.name : 'Venue Location'}
+                      </span>
+                    </div>
+
+                    {/* Participants Bar */}
+                    <div className="mt-4 pt-4 border-t border-gray-100">
+                      <div className="flex justify-between text-xs text-gray-500 mb-1">
+                        <span>0 joined</span>
+                        <span>{formData.capacity} spots</span>
+                      </div>
+
+                      <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                        <div className="h-full bg-purple-500 w-0"></div>
+                      </div>
+                    </div>
+
+                    {/* Join Button Mockup */}
+                    <div className="mt-4">
+                      <button
+                        type="button"
+                        disabled
+                        className="w-full py-2.5 bg-purple-600 text-white rounded-xl font-bold text-sm shadow-md shadow-purple-200 opacity-90 cursor-not-allowed"
+                      >
+                        Join Event
+                      </button>
+                    </div>
+
+                  </div>
               </div>
 
               {/* Tips */}

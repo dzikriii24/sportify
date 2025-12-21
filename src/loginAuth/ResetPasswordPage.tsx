@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 const ResetPasswordPage: React.FC = () => {
     const [email, setEmail] = useState('');
@@ -15,12 +16,12 @@ const ResetPasswordPage: React.FC = () => {
             style={{ backgroundImage: "url('../src/assets/bg.jpg')" }}
         >
             {/* Menggunakan tag <a> untuk menghindari error jika belum ada Router */}
-            <a href="/login" className="absolute top-8 left-8 text-white/70 hover:text-white transition-colors duration-300 flex items-center gap-2">
+            <Link to="/login" className="absolute top-8 left-8 text-white/70 hover:text-white transition-colors duration-300 flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" className="w-7 h-7">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
                 </svg>
                 <span className="font-medium text-lg">Back</span>
-            </a>
+            </Link>
 
             <div className="w-full max-w-[900px] h-[550px] flex rounded-[20px] shadow-[0_10px_30px_rgba(0,0,0,0.3)] overflow-hidden mx-4">
                 
